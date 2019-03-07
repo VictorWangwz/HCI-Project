@@ -4,14 +4,40 @@
 <head>
     <meta charset="utf-8"/>
     <title>Chat Room</title>
+    <style>
+        .column {
+          float: left;
+          width: 50%;
+            text-align:center;
+        }
+
+        /* Clear floats after the columns */
+        .row:after {
+          content: "";
+          display: table;
+          clear: both;
+        }
+    </style>
 </head>
 <body>
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br/>
-    <input id="chat-message-input" type="text" size="100"/><br/>
-    <input id="chat-message-submit" type="button" value="Send"/>
+    <div class="row">
+      <div class="column">
+          <video width="530" height="440" controls autoplay>
+                <source src={{ video.file.url}} type="video/mp4"></source>
+            </video>
+      </div>
+      <div class="column">
+          <textarea id="chat-log" cols="100" rows="20"></textarea><br/>
+            <input id="chat-message-input" type="text" size="100"/><br/>
+            <input id="chat-message-submit" type="button" value="Send"/>
+      </div>
+    </div>
+
+
 </body>
 <script>
     var roomName = {{ room_name_json }};
+    var name = {{ user }};
 
     var chatSocket = new WebSocket(
         'ws://' + window.location.host +
@@ -38,10 +64,11 @@
         var messageInputDom = document.querySelector('#chat-message-input');
         var message = messageInputDom.value;
         chatSocket.send(JSON.stringify({
-            'message': message
+            'message': name + ": "+ message
         }));
 
         messageInputDom.value = '';
     };
+
 </script>
 </html>

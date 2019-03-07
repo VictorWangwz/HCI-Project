@@ -119,9 +119,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
 STATIC_URL = '/static/'
-
+MEDIA_URL = '/media/'
 
 # Channels
 ASGI_APPLICATION = 'chat_server.routing.application'

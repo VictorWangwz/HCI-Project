@@ -9,3 +9,11 @@ class VideoSerialzier(ModelSerializer):
     class Meta:
         model = Video
         fields = "__all__"
+
+
+
+class ChatRoomSerialzier(ModelSerializer):
+
+    class Meta:
+        model = ChatRoom
+        fields = "__all__"

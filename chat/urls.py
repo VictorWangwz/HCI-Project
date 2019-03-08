@@ -1,3 +1,5 @@
+__author__ = ' Zhen Wang'
+
 # chat/urls.py
 from django.urls import path
 from django.conf.urls.static import static
@@ -8,7 +10,8 @@ from . import views
 
 urlpatterns = [
     path('chat/', views.index, name='index'),
-    path('<str:user_name>/chat/<str:room_name>/', views.room, name='room'),
+    path('<str:user_name>/chat/<int:room_id>/video/<str:video_name>/', views.room, name='room'),
     path('users/', UserList.as_view()),
     path('videos/', VideoList.as_view()),
+    path('chat-room/', ChatRoomList.as_view()),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

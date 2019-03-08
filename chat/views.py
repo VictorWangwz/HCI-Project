@@ -1,3 +1,5 @@
+__author__ = ' Zhen Wang'
+
 # chat/views.py
 import json
 
@@ -8,19 +10,18 @@ from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import *
 from rest_framework.views import APIView
 
-from .model import *
-from .serializers import VideoSerialzier
+from .serializers import *
 
 
 def index(request):
     return render(request, 'chat/index.html', {})
 
 
-def room(request, user_name, room_name):
-    video = get_object_or_404(Video, name=room_name)
+def room(request, user_name, room_id, video_name):
+    video = get_object_or_404(Video, name=video_name)
     user = get_object_or_404(User, name=user_name)
     return render(request, 'chat/room.html', {
-        'room_name_json': mark_safe(json.dumps(room_name)),
+        'room_name_json': mark_safe(json.dumps(room_id)),
         'video': video,
         'user': mark_safe(json.dumps(user.name))
     })
@@ -44,3 +45,10 @@ class VideoList(ListCreateAPIView):
 
     def get_queryset(self):
         return Video.objects.all()
+
+
+class ChatRoomList(ListCreateAPIView):
+    serializer_class = ChatRoomSerialzier
+
+    def get_queryset(self):
+        return ChatRoom.objects.all()

@@ -1,6 +1,9 @@
+__author__ = ' Zhen Wang'
+
 # chat/consumers.py
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
+
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):

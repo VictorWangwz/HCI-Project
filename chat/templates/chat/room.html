@@ -17,6 +17,28 @@
           display: table;
           clear: both;
         }
+        .text {
+            overflow:hidden;
+            background-color:#FFF;
+            color:#222;
+            font-family:Courier, monospace;
+            font-weight:normal;
+            font-size:24px;
+            resize:none;
+            line-height:40px;
+            padding-left:100px;
+            padding-right:100px;
+            padding-top:45px;
+            {#padding-bottom:34px;#}
+            background-image:url(https://static.tumblr.com/maopbtg/E9Bmgtoht/lines.png), url(https://static.tumblr.com/maopbtg/nBUmgtogx/paper.png);
+            background-repeat:repeat-y, repeat;
+            -webkit-border-radius:12px;
+            border-radius:12px;
+            -webkit-box-shadow: 0px 2px 14px #000;
+            box-shadow: 0px 2px 14px #000;
+            border-top:1px solid #FFF;
+            border-bottom:1px solid #FFF;
+            }
     </style>
 </head>
 <body>
@@ -25,11 +47,13 @@
           <video width="530" height="440" controls autoplay>
                 <source src={{ video.file.url}} type="video/mp4"></source>
             </video>
+          <input id="chat-message-input" type="text" size="100"/><br/>
+            <input id="chat-message-submit" type="button" value="Send"/>
+            <input id="end-message-submit" type="button" value="Exit"/>
       </div>
       <div class="column">
-          <textarea id="chat-log" cols="100" rows="20"></textarea><br/>
-            <input id="chat-message-input" type="text" size="100"/><br/>
-            <input id="chat-message-submit" type="button" value="Send"/>
+          <textarea id="chat-log" class="text" cols="100" rows="20"></textarea><br/>
+
       </div>
     </div>
 
@@ -46,7 +70,11 @@
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
         var message = data['message'];
-        document.querySelector('#chat-log').value += (message + '\n');
+        if (data['exit'] == 1){
+            alert(message)
+        }else {
+            document.querySelector('#chat-log').value += (message + '\n');
+        }
     };
 
     chatSocket.onclose = function(e) {
@@ -68,6 +96,14 @@
         }));
 
         messageInputDom.value = '';
+    };
+
+    document.querySelector('#end-message-submit').onclick = function(e) {
+        chatSocket.send(JSON.stringify({
+            'message': "The experiment is done, please go to http://questionnaire.com/ " +
+            "to finish the questionnaire.",
+            "exit": 1
+        }));
     };
 
 </script>

@@ -44,21 +44,28 @@
 <body>
     <div class="row">
       <div class="column">
-          <video width="530" height="440" controls autoplay>
-                <source src={{ video.file.url}} type="video/mp4"></source>
-            </video>
+{#          <video width="530" height="440" controls autoplay>#}
+{#                <source src="https://www.youtube.com/353aab33-5f8d-4ff1-bb1f-e252f1ae33de" type="video/mp4"></source>#}
+{#            </video>#}
+          <div id="player"></div>
+          <div id="player"></div>
           <input id="chat-message-input" type="text" size="100"/><br/>
             <input id="chat-message-submit" type="button" value="Send"/>
             <input id="end-message-submit" type="button" value="Exit"/>
       </div>
+        <div class="column" id="videos">
+
+
+        </div>
       <div class="column">
           <textarea id="chat-log" class="text" cols="100" rows="20"></textarea><br/>
 
       </div>
+
     </div>
 
-
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
     var roomName = {{ room_name_json }};
     var name = {{ user }};
@@ -70,10 +77,20 @@
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
         var message = data['message'];
+        var videos = data['videos'];
         if (data['exit'] == 1){
             alert(message)
         }else {
             document.querySelector('#chat-log').value += (message + '\n');
+            for(i=0; i<videos.length; i++){
+                var node = document.createElement("iframe");
+            node.setAttribute('width',"560");
+            node.setAttribute('height',"315");
+            node.setAttribute('src',"https://www.youtube.com/embed/"+videos[i]);
+            node.classList.add("happy")
+            document.getElementById("videos").appendChild(node);
+            }
+
         }
     };
 
@@ -91,11 +108,20 @@
     document.querySelector('#chat-message-submit').onclick = function(e) {
         var messageInputDom = document.querySelector('#chat-message-input');
         var message = messageInputDom.value;
-        chatSocket.send(JSON.stringify({
-            'message': name + ": "+ message
-        }));
+
 
         messageInputDom.value = '';
+        $.ajax({
+            type: "GET",
+            url: "/videos/?key="+message,
+        }).done((res)=>{
+            chatSocket.send(JSON.stringify({
+            'message': name + ": "+ message,
+                'videos': res
+        }));
+        }).fail(() => {
+            alert("keyword provided is wrong");
+        })
     };
 
     document.querySelector('#end-message-submit').onclick = function(e) {
@@ -106,5 +132,47 @@
         }));
     };
 
+
+// 2. This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement('script');
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          videoId: "{{ video.video_id }}",
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+
+      // 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+      var done = false;
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && !done) {
+          setTimeout(stopVideo, 6000);
+          done = true;
+        }
+      }
+      function stopVideo() {
+        player.stopVideo();
+      }
 </script>
+
 </html>

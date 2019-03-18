@@ -11,10 +11,12 @@ from rest_framework.response import *
 from rest_framework.views import APIView
 
 from .serializers import *
+from django_filters import rest_framework as filters
+from .filter import VideoFilter
 
 
 def index(request):
-    return render(request, 'chat/index.html', {})
+    return render(request, 'chat/youtube.html', {})
 
 
 def room(request, user_name, room_id, video_name):
@@ -41,7 +43,9 @@ class UserList(APIView):
 
 
 class VideoList(ListCreateAPIView):
+    filter_backends = (filters.DjangoFilterBackend,)
     serializer_class = VideoSerialzier
+    filterset_class = VideoFilter
 
     def get_queryset(self):
         return Video.objects.all()

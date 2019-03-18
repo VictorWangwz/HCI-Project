@@ -32,15 +32,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
         exit = 0
         if "exit" in text_data_json.keys():
             exit = text_data_json["exit"]
+        if exit == 0:
+            reply = {
+                'type': 'chat_message',
+                "message": message,
+                "name": text_data_json['name'],
+                "videos":  text_data_json["videos"],
+                "exit": exit
+            }
+        else:
+            reply =   {
+                'type': 'chat_message',
+                "message": message,
+                "name": text_data_json['name'],
+                "exit": exit
+            }
+
         # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name,
-            {
-                'type': 'chat_message',
-                "message": message,
-                "videos": [video["video_id"] for video in text_data_json["videos"]],
-                "exit":exit
-            }
+            reply
         )
 
     # Receive message from room group

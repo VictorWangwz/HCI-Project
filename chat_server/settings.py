@@ -125,6 +125,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "chat/static"),
+]
 MEDIA_URL = '/media/'
 
 # Channels

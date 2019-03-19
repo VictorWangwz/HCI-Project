@@ -21,13 +21,10 @@ def index(request):
     return render(request, 'chat/youtube.html', {})
 
 
-def room(request, user_name, room_id, video_name):
-    video = get_object_or_404(Video, name=video_name)
+def room(request, user_name, room_id):
     user = get_object_or_404(User, name=user_name)
-    print(api_key)
     return render(request, 'chat/room.html', {
         'room_name_json': mark_safe(json.dumps(room_id)),
-        'video': video,
         'user': mark_safe(json.dumps(user.name)),
         'env': api_key
     })

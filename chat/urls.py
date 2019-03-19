@@ -10,7 +10,7 @@ from . import views
 
 urlpatterns = [
     path('chat/', views.index, name='index'),
-    path('<str:user_name>/chat/<int:room_id>/video/<str:video_name>/', views.room, name='room'),
+    path('<str:user_name>/chat/<int:room_id>/', views.room, name='room'),
     path('users/', UserList.as_view()),
     path('videos/', VideoList.as_view()),
     path('chat-room/', ChatRoomList.as_view()),

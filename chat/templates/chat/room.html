@@ -106,7 +106,7 @@
                 var button = document.createElement("input");
                 button.type = "button";
                 button.value = "send";
-                button.classList.add(video_id, "btn", "btn-outline-primary");
+                button.classList.add(video_id);
                 button.addEventListener("click", (e)=>{
                     chatSocket.send(JSON.stringify({ 'message': message, 'videos': $(e.target).attr("class"), 'name': name }));
                     document.getElementById("preview").innerText = "";

@@ -24,7 +24,7 @@
       </div>
     </div>
     <center>
-        <div id="preview">
+        <div id="preview" class="row">
 
     </div>
     </center>
@@ -36,6 +36,7 @@
 <script>
     var roomName = {{ room_name_json }};
     var name = {{ user }};
+    var API_KEY = "{{ env }}";
 
     var chatSocket = new WebSocket(
         'ws://' + window.location.host +
@@ -84,29 +85,37 @@
         var messageInputDom = document.querySelector('#chat-message-input');
         var message = messageInputDom.value;
         messageInputDom.value = '';
+
         $.ajax({
             type: "GET",
-            url: "/videos/?key="+message,
+            {#url: "/videos/?key="+message,#}
+            url: "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q="+message+"&key="+API_KEY
         }).done((res)=>{
-
-            for(i=0; i<res.length; i++){
-                video_id = res[i].video_id;
+            items = res.items;
+            message =message.replace(/\s+/g, '+');
+            len = items.length > 6? 6:items.length;
+            for(i=0; i<len; i++){
+                video_id = items[i].id.videoId;
+                var div = document.createElement("div");
                 var node = document.createElement("IFRAME");
-                node.width = 100;
-                node.height = 80;
+                node.width = 150;
+                node.height = 100;
                 node.src = "https://www.youtube.com/embed/"+video_id;
                 node.allow = "accelerometer; autoplay;encrypted-media;";
                 node.classList.add(video_id);
                 var button = document.createElement("input");
                 button.type = "button";
-                button.classList.add(video_id);
+                button.value = "send";
+                button.classList.add(video_id, "btn", "btn-outline-primary");
                 button.addEventListener("click", (e)=>{
                     chatSocket.send(JSON.stringify({ 'message': message, 'videos': $(e.target).attr("class"), 'name': name }));
                     document.getElementById("preview").innerText = "";
 
                 })
-                document.getElementById("preview").appendChild(node);
-                document.getElementById("preview").appendChild(button);
+                div.classList.add("column");
+                div.appendChild(node);
+                div.appendChild(button);
+                document.getElementById("preview").appendChild(div);
             }
 
         }).fail(() => {

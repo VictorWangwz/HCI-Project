@@ -13,6 +13,8 @@ from rest_framework.views import APIView
 from .serializers import *
 from django_filters import rest_framework as filters
 from .filter import VideoFilter
+from chat_server.settings import api_key
+
 
 
 def index(request):
@@ -22,10 +24,12 @@ def index(request):
 def room(request, user_name, room_id, video_name):
     video = get_object_or_404(Video, name=video_name)
     user = get_object_or_404(User, name=user_name)
+    print(api_key)
     return render(request, 'chat/room.html', {
         'room_name_json': mark_safe(json.dumps(room_id)),
         'video': video,
-        'user': mark_safe(json.dumps(user.name))
+        'user': mark_safe(json.dumps(user.name)),
+        'env': api_key
     })
 
 

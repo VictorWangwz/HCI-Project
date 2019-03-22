@@ -9,9 +9,9 @@ class User(models.Model):
 
 class Video(models.Model):
     name = models.CharField(max_length=50)
-    file = models.FileField(upload_to="videos/", null=True, blank=True)
-    video_id = models.CharField(max_length=50, default="M7lc1UVf-VE")
+    url = models.CharField(max_length=50, default="M7lc1UVf-VE")
     key = models.CharField(max_length=50, default="happy")
+    category = models.CharField(max_length=50, default="emotion")
 
 
 class ChatRoom(models.Model):

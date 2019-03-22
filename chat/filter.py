@@ -8,4 +8,4 @@ class VideoFilter(django_filters.FilterSet):
 
     class Meta:
         model = Video
-        fields = ['key']
+        fields = ['key', 'category']

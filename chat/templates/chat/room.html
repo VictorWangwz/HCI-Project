@@ -25,6 +25,9 @@
     </div>
     <center>
         <div id="preview" class="row">
+            <div class="column" id="noun"><h1>noun</h1></div>
+            <div class="column" id="verb"><h1>verb</h1></div>
+            <div class="column" id="emotion"><h1>emotion</h1></div>
 
     </div>
     </center>
@@ -95,7 +98,7 @@
             message =message.replace(/\s+/g, '+');
             len = items.length > 6? 6:items.length;
             for(i=0; i<len; i++){
-                video_id = items[i].id.videoId;
+                video_id = items[i].id.url;
                 var div = document.createElement("div");
                 var node = document.createElement("IFRAME");
                 node.width = 150;
@@ -131,6 +134,65 @@
             'name': name
         }));
     };
+    var categories = ["noun", "verb", "emotion"];
+    for(j = 0; j < categories.length; j++){
+        createCategories(categories[j]);
+    }
+
+    function createCategories(category){
+        $.ajax({
+            type: "GET",
+            url: "/videos/?category=" + category
+        }).done((res)=>{
+            console.log(category);
+            var element = document.querySelector("#"+category);
+            for(i=0; i<res.length; i++){
+                var button = document.createElement("input");
+                button.type = "button";
+                button.value = res[i].name;
+                button.category = category;
+                button.url = res[i].url;
+                button.addEventListener("click", (e)=>{
+                    switch (e.srcElement.category){
+                        case "verb":
+                        case "emotion":{
+                            var video_id = e.srcElement.url;
+                            var node = createIFrame(video_id);
+                            document.querySelector("#preview").appendChild(node);
+                        }
+                    }
+
+                })
+                element.appendChild(button)
+            }
+            j++;
+            return res;
+        })
+    }
+
+    function createIFrame(video_id){
+        var div = document.createElement("div");
+        var node = document.createElement("IFRAME");
+        node.width = 150;
+        node.height = 100;
+        node.src = "https://www.youtube.com/embed/"+video_id;
+        node.allow = "accelerometer; autoplay;encrypted-media;";
+        node.classList.add(video_id);
+        var button = document.createElement("input");
+        button.type = "button";
+        button.value = "send";
+        button.classList.add(video_id);
+        button.addEventListener("click", (e)=>{
+            chatSocket.send(JSON.stringify({'videos': $(e.target).attr("class"), 'name': name }));
+            document.getElementById("preview").innerText = "";
+
+        })
+        div.classList.add("column");
+        div.appendChild(node);
+        div.appendChild(button);
+        return div;
+    }
+
 </script>
 
 </html>

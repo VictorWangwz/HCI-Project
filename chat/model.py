@@ -9,7 +9,7 @@ class User(models.Model):
 
 class Video(models.Model):
     name = models.CharField(max_length=50)
-    url = models.CharField(max_length=50, default="M7lc1UVf-VE")
+    url = models.CharField(max_length=1000, default="M7lc1UVf-VE")
     key = models.CharField(max_length=50, default="happy")
     category = models.CharField(max_length=50, default="emotion")
 

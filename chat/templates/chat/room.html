@@ -5,8 +5,8 @@
     {% load static %}
     <meta charset="utf-8"/>
     <title>Chat Room</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{% static 'my_style.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 <body>
     <div style="text-align: center">
@@ -18,20 +18,29 @@
 
       <div class="column">
           <p> Please enter the key words to send the video clips.</p>
-          <input id="chat-message-input" type="text" size="100"/><br/>
-            <input id="chat-message-submit" type="button" class="btn btn-outline-primary" value="Send"/>
             <input id="end-message-submit" type="button" class="btn btn-outline-primary" value="Exit"/>
+           <input type="button" class="btn btn-outline-primary" value="Show Category" onclick="showCategory()"/>
       </div>
     </div>
-    <center>
-        <div id="preview" class="row">
-            <div class="column" id="noun"><h1>noun</h1></div>
-            <div class="column" id="verb"><h1>verb</h1></div>
-            <div class="column" id="emotion"><h1>emotion</h1></div>
+        <div id="category" class="row" >
+            <div class="column" style="width:33%">
+                <h2>noun</h2>
+                <div id="noun"></div>
+            </div>
+            <div class="column" style="width:33%">
+                <h2>verb</h2>
+                <div id="verb"></div>
+            </div>
+            <div class="column" style="width:33%">
+                <h2>emotion</h2>
+                <div  id="emotion"></div>
+            </div>
 
     </div>
-    </center>
-    <table id="videos" class="table table-bordered">
+    <div id="preview">
+
+    </div>
+    <table id="media" class="table table-bordered">
     </table>
 
 </body>
@@ -48,7 +57,7 @@
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
         var message = data['message'];
-        var video = data['videos'];
+        var media = data['media'];
         var name = data["name"]
         if (data['exit'] == 1){
             alert(message)
@@ -57,18 +66,31 @@
             var th_name = document.createElement("th");
             th_name.innerText = name;
             var th_frame = document.createElement("th");
-            var node = document.createElement("IFRAME");
-            node.width = 100;
-            node.height = 80;
-            node.src = "https://www.youtube.com/embed/"+video;
-            node.allow = "accelerometer; autoplay;encrypted-media;";
-            node.value = name;
+            switch (media){
+                case "noun":{
+                    var node = document.createElement("img");
+                    node.width = 150;
+                    node.height = 100;
+                    node.src = message;
+                    break;
+                }
+                default:{
+                    var node = document.createElement("IFRAME");
+                    node.width = 100;
+                    node.height = 80;
+                    node.src = "https://www.youtube.com/embed/"+message;
+                    node.allow = "accelerometer; autoplay;encrypted-media;";
+                    node.value = name;
+                    break;
+                }
+            }
+
             th_frame.appendChild(node)
             th_frame.classList.add("table_col");
             tr.append(th_name);
             tr.append(th_frame);
-            node.classList.add(message);
-            document.getElementById("videos").appendChild(tr);
+            node.classList.add(name);
+            document.getElementById("media").appendChild(tr);
 
         }
     };
@@ -77,54 +99,54 @@
         console.error('Chat socket closed unexpectedly');
     };
 
-    document.querySelector('#chat-message-input').focus();
-    document.querySelector('#chat-message-input').onkeyup = function(e) {
-        if (e.keyCode === 13) {  // enter, return
-            document.querySelector('#chat-message-submit').click();
-        }
-    };
+    {#document.querySelector('#chat-message-input').focus();#}
+    {#document.querySelector('#chat-message-input').onkeyup = function(e) {#}
+    {#    if (e.keyCode === 13) {  // enter, return#}
+    {#        document.querySelector('#chat-message-submit').click();#}
+    {#    }#}
+    {#};#}
 
-    document.querySelector('#chat-message-submit').onclick = function(e) {
-        var messageInputDom = document.querySelector('#chat-message-input');
-        var message = messageInputDom.value;
-        messageInputDom.value = '';
-
-        $.ajax({
-            type: "GET",
+    {#document.querySelector('#chat-message-submit').onclick = function(e) {#}
+    {#    var messageInputDom = document.querySelector('#chat-message-input');#}
+    {#    var message = messageInputDom.value;#}
+    {#    messageInputDom.value = '';#}
+    {##}
+    {#    $.ajax({#}
+    {#        type: "GET",#}
             {#url: "/videos/?key="+message,#}
-            url: "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q="+message+"&key="+API_KEY
-        }).done((res)=>{
-            items = res.items;
-            message =message.replace(/\s+/g, '+');
-            len = items.length > 6? 6:items.length;
-            for(i=0; i<len; i++){
-                video_id = items[i].id.url;
-                var div = document.createElement("div");
-                var node = document.createElement("IFRAME");
-                node.width = 150;
-                node.height = 100;
-                node.src = "https://www.youtube.com/embed/"+video_id;
-                node.allow = "accelerometer; autoplay;encrypted-media;";
-                node.classList.add(video_id);
-                var button = document.createElement("input");
-                button.type = "button";
-                button.value = "send";
-                button.classList.add(video_id);
-                button.addEventListener("click", (e)=>{
-                    chatSocket.send(JSON.stringify({ 'message': message, 'videos': $(e.target).attr("class"), 'name': name }));
-                    document.getElementById("preview").innerText = "";
-
-                })
-                div.classList.add("column");
-                div.appendChild(node);
-                div.appendChild(button);
-                document.getElementById("preview").appendChild(div);
-            }
-
-        }).fail(() => {
-            alert("keyword provided is wrong");
-        })
-    };
+    {#        url: "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q="+message+"&key="+API_KEY#}
+    {#    }).done((res)=>{#}
+    {#        items = res.items;#}
+    {#        message =message.replace(/\s+/g, '+');#}
+    {#        len = items.length > 6? 6:items.length;#}
+    {#        for(i=0; i<len; i++){#}
+    {#            video_id = items[i].id.url;#}
+    {#            var div = document.createElement("div");#}
+    {#            var node = document.createElement("IFRAME");#}
+    {#            node.width = 150;#}
+    {#            node.height = 100;#}
+    {#            node.src = "https://www.youtube.com/embed/"+video_id;#}
+    {#            node.allow = "accelerometer; autoplay;encrypted-media;";#}
+    {#            node.classList.add(video_id);#}
+    {#            var button = document.createElement("input");#}
+    {#            button.type = "button";#}
+    {#            button.value = "send";#}
+    {#            button.classList.add(video_id);#}
+    {#            button.addEventListener("click", (e)=>{#}
+    {#                chatSocket.send(JSON.stringify({ 'message': message, 'videos': $(e.target).attr("class"), 'name': name }));#}
+    {#                document.getElementById("preview").innerText = "";#}
+    {##}
+    {#            })#}
+    {#            div.classList.add("column");#}
+    {#            div.appendChild(node);#}
+    {#            div.appendChild(button);#}
+    {#            document.getElementById("preview").appendChild(div);#}
+    {#        }#}
+    {##}
+    {#    }).fail(() => {#}
+    {#        alert("keyword provided is wrong");#}
+    {#    })#}
+    {#};#}
 
     document.querySelector('#end-message-submit').onclick = function(e) {
         chatSocket.send(JSON.stringify({
@@ -134,10 +156,13 @@
             'name': name
         }));
     };
-    var categories = ["noun", "verb", "emotion"];
-    for(j = 0; j < categories.length; j++){
-        createCategories(categories[j]);
+    function showCategory(){
+        var categories = ["noun", "verb", "emotion"];
+        for(j = 0; j < categories.length; j++){
+            createCategories(categories[j]);
     }
+    }
+
 
     function createCategories(category){
         $.ajax({
@@ -146,6 +171,9 @@
         }).done((res)=>{
             console.log(category);
             var element = document.querySelector("#"+category);
+            element.innerHTML = "";
+            var parent = document.querySelector("#preview");
+            parent.innerHTML = "";
             for(i=0; i<res.length; i++){
                 var button = document.createElement("input");
                 button.type = "button";
@@ -157,8 +185,16 @@
                         case "verb":
                         case "emotion":{
                             var video_id = e.srcElement.url;
-                            var node = createIFrame(video_id);
-                            document.querySelector("#preview").appendChild(node);
+                            var node = createIFrame(video_id, category);
+                            parent.appendChild(node);
+                            break;
+                        }
+                        case "noun":{
+                            var image_url = e.srcElement.url;
+                            console.log(image_url);
+                            var node = createImageTag(image_url, category);
+                            parent.appendChild(node);
+                            break;
                         }
                     }
 
@@ -170,21 +206,41 @@
         })
     }
 
-    function createIFrame(video_id){
+    function createImageTag(image_url, className){
+        var div = document.createElement("div");
+        var node = document.createElement("img");
+        node.width = 150;
+        node.height = 100;
+        node.src = image_url;
+        node.classList.add(image_url);
+        var button = document.createElement("input");
+        button.type = "button";
+        button.value = "send";
+        button.classList.add(className);
+        button.addEventListener("click", (e)=>{
+            chatSocket.send(JSON.stringify({'message':image_url, 'media': $(e.target).attr("class"), 'name': name }));
+
+        })
+        div.classList.add("column");
+        div.appendChild(node);
+        div.appendChild(button);
+        return div;
+    }
+
+    function createIFrame(video_id, className){
         var div = document.createElement("div");
         var node = document.createElement("IFRAME");
         node.width = 150;
         node.height = 100;
         node.src = "https://www.youtube.com/embed/"+video_id;
         node.allow = "accelerometer; autoplay;encrypted-media;";
-        node.classList.add(video_id);
+        node.classList.add(className);
         var button = document.createElement("input");
         button.type = "button";
         button.value = "send";
-        button.classList.add(video_id);
+        button.classList.add(className);
         button.addEventListener("click", (e)=>{
-            chatSocket.send(JSON.stringify({'videos': $(e.target).attr("class"), 'name': name }));
-            document.getElementById("preview").innerText = "";
+            chatSocket.send(JSON.stringify({'message':video_id,'media': $(e.target).attr("class"), 'name': name }));
 
         })
         div.classList.add("column");

@@ -28,22 +28,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from WebSocket
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        # message = text_data_json['message']
+        message = text_data_json['message'] if 'message' in text_data_json.keys() else ""
         exit = 0
         if "exit" in text_data_json.keys():
             exit = text_data_json["exit"]
         if exit == 0:
             reply = {
                 'type': 'chat_message',
-                # "message": message,
+                "message": message,
                 "name": text_data_json['name'],
-                "videos":  text_data_json["videos"],
+                "media":  text_data_json["media"],
                 "exit": exit
             }
         else:
             reply =   {
                 'type': 'chat_message',
-                # "message": message,
+                "message": message,
                 "name": text_data_json['name'],
                 "exit": exit
             }

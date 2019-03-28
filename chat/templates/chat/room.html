@@ -57,8 +57,7 @@
     {#var API_KEY = "{{ env }}";#}
 
     var chatSocket = new WebSocket(
-        'ws://' + window.location.host +
-        '/ws/chat/' + roomName + '/');
+        'ws://172.31.36.114/ws/chat/' + roomName + '/');
     console.log(window.location.host)
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);

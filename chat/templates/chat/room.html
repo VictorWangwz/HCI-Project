@@ -24,12 +24,13 @@
     </div>
         <div id="category" class="row" >
             <div class="column" style="width:33%">
-                <h2>noun</h2>
-                <div id="noun"></div>
+                <h2>sentence</h2>
+                <input id="chat-message-input" type="text" onkeypress="this.style.width = ((this.value.length + 1) * 8 + 10) + 'px';"/><br/>
+                <input id="chat-message-submit" type="button" value="Send"/>
             </div>
             <div class="column" style="width:33%">
-                <h2>verb</h2>
-                <div id="verb"></div>
+                <h2>action</h2>
+                <div id="action"></div>
             </div>
             <div class="column" style="width:33%">
                 <h2>emotion</h2>
@@ -37,7 +38,12 @@
             </div>
 
     </div>
-    <div id="preview">
+    <div style="display: flex; justify-content: center">
+        <div style="display: inline">
+             <h3>Selected Videos Preview</h3>
+            <div id="preview" ></div>
+        </div>
+
 
     </div>
     <table id="media" class="table table-bordered">
@@ -67,11 +73,11 @@
             th_name.innerText = name;
             var th_frame = document.createElement("th");
             switch (media){
-                case "noun":{
-                    var node = document.createElement("img");
-                    node.width = 150;
-                    node.height = 100;
-                    node.src = message;
+                case "sentence":{
+                    var node = document.createElement("p");
+                    node.width = 100;
+                    node.height = 80;
+                    node.innerText = (message + '\n');
                     break;
                 }
                 default:{
@@ -99,54 +105,63 @@
         console.error('Chat socket closed unexpectedly');
     };
 
-    {#document.querySelector('#chat-message-input').focus();#}
-    {#document.querySelector('#chat-message-input').onkeyup = function(e) {#}
-    {#    if (e.keyCode === 13) {  // enter, return#}
-    {#        document.querySelector('#chat-message-submit').click();#}
-    {#    }#}
-    {#};#}
+    document.querySelector('#chat-message-input').focus();
+    document.querySelector('#chat-message-input').onkeyup = function(e) {
+        if (e.keyCode === 13) {  // enter, return
+            document.querySelector('#chat-message-submit').click();
+        }
+    };
 
-    {#document.querySelector('#chat-message-submit').onclick = function(e) {#}
-    {#    var messageInputDom = document.querySelector('#chat-message-input');#}
-    {#    var message = messageInputDom.value;#}
-    {#    messageInputDom.value = '';#}
-    {##}
-    {#    $.ajax({#}
-    {#        type: "GET",#}
-            {#url: "/videos/?key="+message,#}
-    {#        url: "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q="+message+"&key="+API_KEY#}
-    {#    }).done((res)=>{#}
-    {#        items = res.items;#}
-    {#        message =message.replace(/\s+/g, '+');#}
-    {#        len = items.length > 6? 6:items.length;#}
-    {#        for(i=0; i<len; i++){#}
-    {#            video_id = items[i].id.url;#}
-    {#            var div = document.createElement("div");#}
-    {#            var node = document.createElement("IFRAME");#}
-    {#            node.width = 150;#}
-    {#            node.height = 100;#}
-    {#            node.src = "https://www.youtube.com/embed/"+video_id;#}
-    {#            node.allow = "accelerometer; autoplay;encrypted-media;";#}
-    {#            node.classList.add(video_id);#}
-    {#            var button = document.createElement("input");#}
-    {#            button.type = "button";#}
-    {#            button.value = "send";#}
-    {#            button.classList.add(video_id);#}
-    {#            button.addEventListener("click", (e)=>{#}
-    {#                chatSocket.send(JSON.stringify({ 'message': message, 'videos': $(e.target).attr("class"), 'name': name }));#}
-    {#                document.getElementById("preview").innerText = "";#}
-    {##}
-    {#            })#}
-    {#            div.classList.add("column");#}
-    {#            div.appendChild(node);#}
-    {#            div.appendChild(button);#}
-    {#            document.getElementById("preview").appendChild(div);#}
-    {#        }#}
-    {##}
-    {#    }).fail(() => {#}
-    {#        alert("keyword provided is wrong");#}
-    {#    })#}
-    {#};#}
+    document.querySelector('#chat-message-submit').onclick = function(e) {
+        var messageInputDom = document.querySelector('#chat-message-input');
+        var message = messageInputDom.value;
+        messageInputDom.value = '';
+        chatSocket.send(JSON.stringify({
+                        'message': message,
+                        'media': "sentence",
+                        'name': name
+        }));
+        messageInputDom.value = '';
+        {#$.ajax({#}
+        {#    type: "GET",#}
+        {#    url: "/videos/?key=" + message,#}
+        {#    url: "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=" + message + "&key=" + API_KEY#}
+        {#}).done((res) => {#}
+        {#    items = res.items;#}
+        {#    message = message.replace(/\s+/g, '+');#}
+        {#    len = items.length > 6 ? 6 : items.length;#}
+        {#    for (i = 0; i < len; i++) {#}
+        {#        video_id = items[i].id.url;#}
+        {#        var div = document.createElement("div");#}
+        {#        var node = document.createElement("IFRAME");#}
+        {#        node.width = 150;#}
+        {#        node.height = 100;#}
+        {#        node.src = "https://www.youtube.com/embed/" + video_id;#}
+        {#        node.allow = "accelerometer; autoplay;encrypted-media;";#}
+        {#        node.classList.add(video_id);#}
+        {#        var button = document.createElement("input");#}
+        {#        button.type = "button";#}
+        {#        button.value = "send";#}
+        {#        button.classList.add(video_id);#}
+        {#        button.addEventListener("click", (e) => {#}
+        {#            chatSocket.send(JSON.stringify({#}
+        {#                'message': message,#}
+        {#                'videos': $(e.target).attr("class"),#}
+        {#                'name': name#}
+        {#            }));#}
+        {#            document.getElementById("preview").innerText = "";#}
+        {##}
+        {#        })#}
+        {#        div.classList.add("column");#}
+        {#        div.appendChild(node);#}
+        {#        div.appendChild(button);#}
+        {#        document.getElementById("preview").appendChild(div);#}
+        {#    }#}
+        {##}
+        {#}).fail(() => {#}
+        {#    alert("keyword provided is wrong");#}
+        {#})#}
+    }
 
     document.querySelector('#end-message-submit').onclick = function(e) {
         chatSocket.send(JSON.stringify({
@@ -157,7 +172,7 @@
         }));
     };
     function showCategory(){
-        var categories = ["noun", "verb", "emotion"];
+        var categories = ["action", "emotion"];
         for(j = 0; j < categories.length; j++){
             createCategories(categories[j]);
     }
@@ -182,20 +197,20 @@
                 button.url = res[i].url;
                 button.addEventListener("click", (e)=>{
                     switch (e.srcElement.category){
-                        case "verb":
+                        case "action":
                         case "emotion":{
                             var video_id = e.srcElement.url;
                             var node = createIFrame(video_id, category);
                             parent.appendChild(node);
                             break;
                         }
-                        case "noun":{
-                            var image_url = e.srcElement.url;
-                            console.log(image_url);
-                            var node = createImageTag(image_url, category);
-                            parent.appendChild(node);
-                            break;
-                        }
+                        {#case "noun":{#}
+                        {#    var image_url = e.srcElement.url;#}
+                        {#    console.log(image_url);#}
+                        {#    var node = createImageTag(image_url, category);#}
+                        {#    parent.appendChild(node);#}
+                        {#    break;#}
+                        {#}#}
                     }
 
                 })
@@ -206,26 +221,26 @@
         })
     }
 
-    function createImageTag(image_url, className){
-        var div = document.createElement("div");
-        var node = document.createElement("img");
-        node.width = 150;
-        node.height = 100;
-        node.src = image_url;
-        node.classList.add(image_url);
-        var button = document.createElement("input");
-        button.type = "button";
-        button.value = "send";
-        button.classList.add(className);
-        button.addEventListener("click", (e)=>{
-            chatSocket.send(JSON.stringify({'message':image_url, 'media': $(e.target).attr("class"), 'name': name }));
-
-        })
-        div.classList.add("column");
-        div.appendChild(node);
-        div.appendChild(button);
-        return div;
-    }
+    {#function createImageTag(image_url, className){#}
+    {#    var div = document.createElement("div");#}
+    {#    var node = document.createElement("img");#}
+    {#    node.width = 150;#}
+    {#    node.height = 100;#}
+    {#    node.src = image_url;#}
+    {#    node.classList.add(image_url);#}
+    {#    var button = document.createElement("input");#}
+    {#    button.type = "button";#}
+    {#    button.value = "send";#}
+    {#    button.classList.add(className);#}
+    {#    button.addEventListener("click", (e)=>{#}
+    {#        chatSocket.send(JSON.stringify({'message':image_url, 'media': $(e.target).attr("class"), 'name': name }));#}
+    {##}
+    {#    })#}
+    {#    div.classList.add("column");#}
+    {#    div.appendChild(node);#}
+    {#    div.appendChild(button);#}
+    {#    return div;#}
+    {#}#}
 
     function createIFrame(video_id, className){
         var div = document.createElement("div");

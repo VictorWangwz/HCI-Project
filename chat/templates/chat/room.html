@@ -20,13 +20,14 @@
           <p> Please enter the key words to send the video clips.</p>
             <input id="end-message-submit" type="button" class="btn btn-outline-primary" value="Exit"/>
            <input type="button" class="btn btn-outline-primary" value="Show Category" onclick="showCategory()"/>
+           <input type="button" class="btn btn-outline-primary" value="Finish Sending" onclick="finishSending()"/>
       </div>
     </div>
         <div id="category" class="row" >
             <div class="column" style="width:33%">
                 <h2>sentence</h2>
                 <input id="chat-message-input" type="text" onkeypress="this.style.width = ((this.value.length + 1) * 8 + 10) + 'px';"/><br/>
-                <input id="chat-message-submit" type="button" value="Send"/>
+                <input id="chat-message-submit" class="btn btn-outline-primary" type="button" value="Send"/>
             </div>
             <div class="column" style="width:33%">
                 <h2>action</h2>
@@ -165,7 +166,7 @@
 
     document.querySelector('#end-message-submit').onclick = function(e) {
         chatSocket.send(JSON.stringify({
-            'message': "The experiment is done, please go to http://questionnaire.com/ " +
+            'message': "The experiment is done, please go to https://www.surveymonkey.com/r/N29JLSF " +
             "to finish the questionnaire.",
             "exit": 1,
             'name': name
@@ -195,6 +196,7 @@
                 button.value = res[i].name;
                 button.category = category;
                 button.url = res[i].url;
+                button.classList.add("btn","btn-outline-primary");
                 button.addEventListener("click", (e)=>{
                     switch (e.srcElement.category){
                         case "action":
@@ -253,7 +255,7 @@
         var button = document.createElement("input");
         button.type = "button";
         button.value = "send";
-        button.classList.add(className);
+        button.classList.add(className, "btn", "btn-outline-primary");
         button.addEventListener("click", (e)=>{
             chatSocket.send(JSON.stringify({'message':video_id,'media': $(e.target).attr("class"), 'name': name }));
 
@@ -262,6 +264,16 @@
         div.appendChild(node);
         div.appendChild(button);
         return div;
+    }
+
+    function finishSending() {
+         chatSocket.send(
+             JSON.stringify(
+                 {'message':"The present person finished sending.",'media': "sentence", 'name': "admin" }
+                 )
+         );
+         let preview = document.getElementById("preview");
+         preview.innerHTML = "";
     }
 
 </script>

@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 from decouple import config
 
-api_key = config('YOUTUBE_APIKEY')
+# api_key = config('YOUTUBE_APIKEY')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,7 +28,7 @@ SECRET_KEY = '&3wi$lvfgv1vm^!l+*(m_*x^$vdx59p=%@2ek8ltlln3^)&q(i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition

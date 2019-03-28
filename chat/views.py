@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 from .serializers import *
 from django_filters import rest_framework as filters
 from .filter import VideoFilter
-from chat_server.settings import api_key
+# from chat_server.settings import api_key
 
 
 
@@ -26,7 +26,7 @@ def room(request, user_name, room_id):
     return render(request, 'chat/room.html', {
         'room_name_json': mark_safe(json.dumps(room_id)),
         'user': mark_safe(json.dumps(user.name)),
-        'env': api_key
+        # 'env': api_key
     })
 
 

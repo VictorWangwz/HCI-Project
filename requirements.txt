@@ -54,7 +54,7 @@ termcolor==1.1.0
 texttable==0.9.1
 Twisted==18.7.0
 txaio==18.7.1
-urllib3==1.23
+urllib3==1.26.5
 wcwidth==0.1.7
 websocket-client==0.56.0
 xlrd==1.2.0
